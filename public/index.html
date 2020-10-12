@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="zh-cmn-Hans">
+
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <link rel="icon" href="<%= BASE_URL %>favicon.ico" />
+  <title><%= htmlWebpackPlugin.options.title %></title>
+  <meta name="keywords" content="vue-admin,vue-admin-beautiful,vue-element-admin,beautiful,vue,admin" />
+  <meta name="description" content="<%= webpackConfig.name %>基于vue-admin-beautiful构建,作者:chuzhixin 1204505056@qq.com" />
+  <meta name="author" content="chuzhixin 1204505056@qq.com" />
+</head>
+
+<body>  
+  <script type="text/javascript"src="https://webapi.amap.com/maps?v=1.4.15&key=dc0c717439264041a3164f14a03da1e0&plugin=AMap.Geocoder"></script>
+  <noscript>
+    非常抱歉鉴于安全考量,您无法查看<%= webpackConfig.name %>
+    源代码
+  </noscript>
+  <div id="vue-admin-beautiful"></div>
+  <script>
+    /^http(s*):\/\//.test(location.href) ||
+      alert("基于vue-admin-beautiful开发的项目需要部署到服务器下访问");
+
+  </script>
+</body>
+
+</html>
