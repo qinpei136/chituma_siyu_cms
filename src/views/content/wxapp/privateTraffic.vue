@@ -1,74 +1,120 @@
 <template>
   <div class="table-container">
     <byui-query-form>
-      <byui-query-form-left-panel>
+      <!-- <byui-query-form-left-panel>
         <div style="width: 500px; height: 3px;"></div>
-      </byui-query-form-left-panel>
-      <byui-query-form-right-panel>
-        <el-form
-          ref="form"
-          :model="queryForm"
-          :inline="true"
-          @submit.native.prevent
-        >
-          <el-form-item>
-            <el-button
-              icon="el-icon-refresh"
-              type="primary"
-              @click="clearCenterList"
-              >清空
-            </el-button>
-          </el-form-item>
-          <el-form-item>
-            <el-button
-              icon="el-icon-circle-plus-outline"
-              type="primary"
-              @click="
-                () => {
-                  this.$router.push({
-                    path: '/weapp/privateTrafficDetail/orders/0/true',
-                  });
-                }
-              "
-              >定制套餐
-            </el-button>
-            <el-button
-              icon="el-icon-circle-plus-outline"
-              type="primary"
-              @click="
-                () => {
-                  this.$router.push({
-                    path: '/weapp/privateTrafficDetail/nine/0/true',
-                  });
-                }
-              "
-              >福利套餐
-            </el-button>
-          </el-form-item>
-        </el-form>
-      </byui-query-form-right-panel>
+      </byui-query-form-left-panel> -->
+
+      <byui-query-form>
+        <byui-query-form-left-panel>
+          <el-form ref="form" :inline="true" @submit.native.prevent>
+            <el-form-item label="套餐名称">
+              <el-input
+                v-model="toSend.meal"
+                placeholder="单行输入"
+                clearable
+              ></el-input>
+            </el-form-item>
+
+            <el-form-item label="状态">
+              <el-select v-model="toSend.state" placeholder="请选择" clearable>
+                <el-option
+                  v-for="item in state"
+                  :key="item.value"
+                  :label="item.name"
+                  :value="item.value"
+                >
+                </el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item label="创建时间">
+              <el-input
+                suffix-icon="el-icon-date"
+                v-model="toSend.createTime"
+                placeholder="单行输入"
+                clearable
+              ></el-input>
+            </el-form-item>
+            <el-form-item label="创建人">
+              <el-input
+                v-model="toSend.adStart"
+                placeholder="单行输入"
+                clearable
+              ></el-input>
+            </el-form-item>
+          </el-form>
+          <div style="width: 500px; height: 3px;"></div>
+        </byui-query-form-left-panel>
+
+        <byui-query-form-right-panel>
+          <el-form
+            ref="form"
+            :model="queryForm"
+            :inline="true"
+            @submit.native.prevent
+          >
+            <el-form-item>
+              <el-button
+                icon="el-icon-refresh"
+                type="primary"
+                @click="clearCenterList"
+                >清空
+              </el-button>
+            </el-form-item>
+            <el-form-item>
+              <el-button
+                icon="el-icon-circle-plus-outline"
+                type="primary"
+                @click="
+                  () => {
+                    this.$router.push({
+                      path: '/weapp/privateTrafficDetail/orders/0/true',
+                    });
+                  }
+                "
+                >定制套餐
+              </el-button>
+              <el-button
+                icon="el-icon-circle-plus-outline"
+                type="primary"
+                @click="
+                  () => {
+                    this.$router.push({
+                      path: '/weapp/privateTrafficDetail/nine/0/true',
+                    });
+                  }
+                "
+                >福利套餐
+              </el-button>
+            </el-form-item>
+          </el-form>
+        </byui-query-form-right-panel>
+      </byui-query-form>
     </byui-query-form>
 
+    <!--================私域流量套餐表格区域=============  -->
     <el-table
       ref="tableSort"
       v-loading="listLoading"
       :data="allow_List"
-      style="min-height: 50vh;"
+      style="width: 100%;"
       :element-loading-text="elementLoadingText"
     >
       <el-table-column prop="name" label="套餐名称"></el-table-column>
       <el-table-column prop="type" label="套餐类型"></el-table-column>
-
       <el-table-column prop="price" label="价格"></el-table-column>
       <el-table-column prop="promPrice" label="促销价"></el-table-column>
+      <el-table-column prop="bonusRatio" label="物业分红比例"></el-table-column>
+      <el-table-column prop="index" label="排序"></el-table-column>
       <el-table-column prop="stat" label="状态">
         <template slot-scope="scope">
           {{ isUse[scope.row.stat] }}
         </template>
       </el-table-column>
-      <el-table-column prop="index" label="排序"></el-table-column>
+
       <el-table-column prop="createTime" label="创建时间"></el-table-column>
-      <el-table-column prop="account" label="创建人"> </el-table-column>
+      <el-table-column width="150" prop="account" label="创建人">
+      </el-table-column>
 
       <el-table-column label="操作" width="400px" fixed="right">
         <template slot-scope="scope">
@@ -249,8 +295,8 @@
           <el-form-item label="轮播图片素材">
             <div v-if="mealForm.playMaterialUrls.length > 0">
               <img
-                width="120"
-                height="60"
+                width="160"
+                height="100"
                 v-for="src in playMaterialImg"
                 :key="src"
                 :src="src"
@@ -263,8 +309,8 @@
               :receive="5 - playMaterialImg.length - playMaterialVideo.length"
               @resaveImg="allow_setplayMaterialImg"
               :inOption="{
-                autoCropWidth: '1200',
-                autoCropHeight: '600',
+                autoCropWidth: '1280',
+                autoCropHeight: '800',
                 fixedNumber: [2, 1],
               }"
             ></to-keep>
@@ -300,8 +346,7 @@
               </upload-img>
             </div>
 
-            <span class="tip"
-              >图片格式支持JPG,PNG;视频格式支持MP4;数量不得超过4;裁剪宽高：1200*600</span
+            <span class="tip">图片格式支持JPG,PNG;视频格式支持MP4;数量不得超过4;裁剪宽高：1280*800</span
             >
           </el-form-item>
 
@@ -593,6 +638,13 @@ export default {
     allowGetRoute = allowGetRoute.reverse();
 
     return {
+      toSend: {
+        state: "",
+        meal: "",
+        payPrice: "",
+        adStart: "",
+        createTime: "",
+      }, // input绑定的值
       allow_InitData: [],
       allow_mapData: [],
       allow_List: [],
@@ -635,6 +687,11 @@ export default {
 
       getrouteAdmin: "",
       isShowShen: null,
+      // 状态下拉内容值
+      state: [
+        { value: 1, name: "禁用" },
+        { value: 2, name: "启用" },
+      ],
       isUse: ["禁用", "启用"],
       ordersDirection: [],
 
@@ -687,6 +744,7 @@ export default {
       isForKeep: 0,
       isEdit: false,
       editorK: null,
+      getType: null
     };
   },
   computed: {},
@@ -737,6 +795,7 @@ export default {
       weapp
         .getMeals()
         .then((res) => {
+          console.log(res);
           if (res.data.status) {
             this.allow_InitData = res.data.data;
 
@@ -883,6 +942,7 @@ export default {
     allow_toLimits(row, postIsVerify) {
       sessionStorage.setItem("fromUrl", "/weapp/private-domain-traffic");
       this.mealForm = row;
+      console.log('row', row)
       this.$router.push({
         name: "weapp-private-traffic-detail",
         params: {
@@ -1269,9 +1329,15 @@ export default {
       this.getrouteAdmin = "";
       this.centerDialogVisible = false;
     },
+    // state: "", meal: "", payPrice: "", adStart: ""
     clearCenterList() {
       this.ordersNameValue = "";
       this.ordersNameSelect = "";
+      this.toSend.state = "";
+      this.toSend.meal = "";
+      this.toSend.payPrice = "";
+      this.toSend.adStart = "";
+      this.toSend.createTime = "";
       this.allow_mapData = [...this.allow_InitData];
       this.allowTotal = this.allow_mapData.length;
       this.allowPageChange(1);
@@ -1296,8 +1362,8 @@ export default {
           message: "没有图片",
         });
       }
-    },
-  },
+    }
+  }
 };
 </script>
 <style lang="scss" scoped>

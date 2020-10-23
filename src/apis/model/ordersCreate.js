@@ -8,7 +8,7 @@ export async function getMygetCities(data) {
     params: data,
   });
 }
-// 查询 城市
+// 查询行政区
 export async function postMyCommunity(data) {
   return await servicer({
     // url: "/chtm/getCommunity", 旧
@@ -17,7 +17,7 @@ export async function postMyCommunity(data) {
     data,
   });
 }
-// 查询 行政区
+// 查询小区
 export async function postMyUnit(data) {
   return await servicer({
     url: "/chtm/getCommunity",

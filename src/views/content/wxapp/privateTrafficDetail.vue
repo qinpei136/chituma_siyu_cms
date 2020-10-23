@@ -25,6 +25,7 @@
                 </el-option>
               </el-select>
             </el-form-item>
+
             <el-form-item label="套餐名称" v-if="mealForm.style == 'orders'">
               <el-row type="flex">
                 <el-col :span="6">
@@ -34,8 +35,19 @@
                     maxlength="8"
                   ></el-input>
                 </el-col>
+
+                <el-col :span="6" v-show="mealForm.style === 'nine'">
+                  促销价:
+                  <el-input-number
+                    :precision="2"
+                    :min="0"
+                    v-model="mealForm.promPrice"
+                    :disabled="!isEdit"
+                  ></el-input-number>
+                </el-col>
               </el-row>
             </el-form-item>
+
             <el-form-item label="单价">
               <el-row type="flex">
                 <el-col :span="6">
@@ -119,14 +131,14 @@
               </el-form-item> -->
             </el-form-item>
             <el-form-item label="轮播图片素材">
-              <div
+             <div
                 v-for="src in mealForm.playMaterialUrls.filter(
                   (m) =>
-                    m.url &&
+                    (m.url &&
                     m.url.indexOf('.mp4') == -1 &&
-                    m.url.indexOf('https://') != -1
+                    (m.url.indexOf('https://') != -1 || m.url.indexOf('image') != -1))
                 )"
-                :key="src"
+                :key="src.url"
                 class="delImg display"
               >
                 <img
@@ -137,7 +149,7 @@
                   class="display"
                 />
                 <el-button
-                  :key="src"
+                  :key="src.url"
                   type="Warning"
                   icon="el-icon-delete"
                   circle
@@ -156,9 +168,9 @@
                 "
                 @resaveImg="allow_setplayMaterialImg"
                 :inOption="{
-                  autoCropWidth: '1200',
-                  autoCropHeight: '600',
-                  fixedNumber: [2, 1],
+                  autoCropWidth: '1280',
+                  autoCropHeight: '800',
+                  fixedNumber: [8, 5],
                 }"
               ></to-keep>
             </el-form-item>
@@ -168,10 +180,10 @@
                 v-for="src in mealForm.playMaterialUrls.filter(
                   (m) =>
                     m.url &&
-                    m.url.indexOf('.mp4') != -1 &&
-                    m.url.indexOf('https://') != -1
+                    m.url.indexOf('.mp4') > -1 &&
+                    m.url.indexOf('https://') > -1
                 )"
-                :key="src"
+                :key="src.url"
                 class="delImg display"
                 style="margin-right: 20px;"
               >
@@ -186,6 +198,7 @@
                   @click="delPlayMaterial(src.url)"
                 ></el-button>
               </div>
+              
               <upload-img
                 class="display"
                 v-if="isEdit"
@@ -193,7 +206,7 @@
                 :receive="
                   4 -
                   mealForm.playMaterialUrls.filter(
-                    (m) => m.url && m.url.indexOf('https://') != -1
+                    (m) => m.url && m.url.indexOf('https://') > -1 && m.url.indexOf('.mp4') > -1
                   ).length
                 "
                 file-type="video"
@@ -233,35 +246,28 @@
               </div> -->
 
               <span class="tip"
-                >图片格式支持JPG,PNG;视频格式支持MP4;数量不得超过4;裁剪宽高：1200*600</span
+                >图片格式支持JPG,PNG;视频格式支持MP4;数量不得超过4;裁剪宽高：1280*800</span
               >
             </el-form-item>
-
             <el-form-item v-show="mealForm.style === 'orders'" label="套餐内容">
               <el-form-item label="蛋糕样式">
                 <div
-                  v-for="src in mealForm.cake.filter(
-                    (m) => typeof m == 'string'
-                  )"
-                  :key="src"
+                  v-for="src in mealForm.cake"
+                  :key="src.url"
                   class="delImg display"
                 >
-                  <img :src="src" class="mealFormFxed display" alt="" />
-                  <el-button
-                    :key="src"
-                    type="Warning"
-                    icon="el-icon-delete"
-                    circle
-                    class="delButton"
-                    @click="delCake(src)"
-                  ></el-button>
+                  <div class="imgItem">
+                    <img :src="src.url" class="mealFormFxed" alt=""  />
+                    <el-button :key="src.url" type="Warning" icon="el-icon-delete" circle class="delButton" @click="delCake(src)"></el-button>
+                    <div><el-input v-model="src.dis" maxlength="5" show-word-limit placeholder="请输入名称"/></div>
+                  </div>
                 </div>
+
                 <to-keep
                   class="display"
                   :pic-path="mealForm.cake"
-                  :receive="
-                    4 - mealForm.cake.filter((m) => typeof m == 'string').length
-                  "
+                  :receive="4 - mealForm.cake.filter((m) => typeof m == 'object').length"
+                  :showInp="true"
                   @resaveImg="allow_setImg"
                 ></to-keep>
                 <span class="tip"
@@ -271,33 +277,29 @@
               <el-form-item label="玩偶样式">
                 <div
                   v-for="src in mealForm.toy.filter(
-                    (m) => typeof m == 'string'
+                    (m) => typeof m == 'object'
                   )"
-                  :key="src"
+                  :key="src.url"
                   class="delImg"
                   style="display: inline-block;"
                 >
-                  <img :src="src" class="mealFormFxed" alt="" />
-                  <el-button
-                    :key="src"
-                    type="Warning"
-                    icon="el-icon-delete"
-                    circle
-                    class="delButton"
-                    @click="delToy(src)"
-                  ></el-button>
+                  <div class="imgItem">
+                    <img :src="src.url" class="mealFormFxed" alt=""  />
+                    <el-button :key="src.url" type="Warning" icon="el-icon-delete" circle class="delButton" @click="delToy(src)"></el-button>
+                    <div><el-input v-model="src.dis" maxlength="5" show-word-limit placeholder="请输入名称"/></div>
+                  </div>
                 </div>
                 <to-keep
                   class="display"
                   :pic-path="mealForm.toy"
-                  :receive="
-                    2 - mealForm.toy.filter((m) => typeof m == 'string').length
-                  "
+                  :receive="2 - mealForm.toy.filter((m) => typeof m == 'object').length"
+                  :showInp="true"
                   @resaveImg="allow_resaveImg"
                 ></to-keep>
                 <span class="tip"
                   >&nbsp;&nbsp;照片只支持.jpg/png/jpeg格式;最少上传一张，最多不得超过二张</span
                 >
+                <!-- 添加图片后弹出inpt -->
               </el-form-item>
               <el-form-item label="蛋糕尺寸">
                 <div class="priceLimitSty">
@@ -431,8 +433,48 @@
                 </el-col>
               </el-row>
             </el-form-item>
-            <!-- v-show="mealForm.style === 'orders'" -->
-            <el-form-item label="是否需要创意场景" v-show="false">
+
+            <!-- 新增物业分红比例 -->
+            <el-form-item label="物业分红比例">
+              <el-row type="flex">
+                <el-col :span="4">
+                  <el-input
+                    v-model="mealForm.bonusRatio"
+                    placeholder="请输入百分比"
+                    clearable
+                  >
+                  </el-input>
+                  <span class="bonus"
+                    >分红比例:每一笔此套餐根据用户支付金额乘以分红比例</span
+                  ></el-col
+                >%
+              </el-row>
+            </el-form-item>
+            
+            <!-- 注释，单行或多行
+            <el-form-item
+              label="是否需要创意场景"
+
+              v-show="mealForm.style === 'orders'"
+            >
+              <el-radio
+                v-model="mealForm.isScene"
+                :disabled="!isEdit"
+                :label="true"
+                >是</el-radio
+              >
+              <el-radio
+                v-model="mealForm.isScene"
+                :disabled="!isEdit"
+                :label="false"
+                >否</el-radio
+              >
+            </el-form-item>
+            -->
+            <el-form-item
+              label="是否需要创意场景"
+              v-show="false"
+            >
               <el-radio
                 v-model="mealForm.isScene"
                 :disabled="!isEdit"
@@ -463,6 +505,7 @@
                 >否</el-radio
               >
             </el-form-item>
+
             <el-form-item label="排序">
               <div class="priceLimitSty">
                 <el-input
@@ -508,6 +551,7 @@ import checkPermission from "@/utils/permission";
 import "@/assets/kindeditor/kindeditor-all.js";
 import "@/assets/kindeditor/lang/zh-CN.js";
 
+// import { index } from "@/toKeep/index.vue";
 export default {
   name: "MediumActivity",
   components: {},
@@ -529,6 +573,9 @@ export default {
     allowGetRoute = allowGetRoute.reverse();
 
     return {
+      input: "",
+      showInp: false,
+
       allow_InitData: [],
       allow_mapData: [],
       allow_List: [],
@@ -566,6 +613,7 @@ export default {
         { value: "新婚之喜", name: "新婚之喜" },
         { value: "房屋租赁", name: "房屋租赁" },
         { value: "失物招领", name: "失物招领" },
+        { value: "社区推广", name: "社区推广" },
       ],
 
       allow_RouteOption: allowGetRoute,
@@ -580,6 +628,13 @@ export default {
       nineType: "福利套餐",
       palyCount: 4,
 
+      toSend: {
+        state: "",
+        meal: "",
+        payPrice: "",
+        adStart: "",
+        createTime: "",
+      }, // input绑定的值
       mealForm: {
         id: 0,
         name: "",
@@ -589,7 +644,7 @@ export default {
         cakeSize: "",
         cake: [],
         toy: [],
-        material: [],
+        //material: [],
         direction: [],
         day: null,
         device: null,
@@ -612,6 +667,7 @@ export default {
         playMaterialUrls: [],
         monthSale: null,
         viewAmount: null,
+        bonusRatio: 0,
         stat: 1,
       },
       // isShowDrawer: false,
@@ -620,11 +676,11 @@ export default {
       toyImgs: [],
       playMaterialImg: [],
       playMaterialVideo: [],
-
       preViewImg: [],
       isForKeep: 0,
       isEdit: true,
       editorRead: false,
+      destTempAry: []
     };
   },
   computed: {},
@@ -678,21 +734,27 @@ export default {
         .getMealDetail({ id: this.mealForm.id })
         .then((res) => {
           if (res.data.status) {
+            //console.log(res.data.data)
             this.mealForm = res.data.data;
+            this.mealForm.bonusRatio *= 100
+            //console.log(this.mealForm)
             //this.cakeImgs = this.mealForm.cake;
-            if (this.mealForm.playMaterialUrls) {
-              for (let i = 0; i < this.mealForm.playMaterialUrls.length; i++) {
-                let playO = this.mealForm.playMaterialUrls[i].url;
-                let playType = playO.substring(playO.lastIndexOf(".") + 1);
-                if (
-                  playType.toLocaleLowerCase() == "jpg" ||
-                  playType.toLocaleLowerCase() == "png"
-                ) {
-                  this.playMaterialImg.push(playO);
-                } else this.playMaterialVideo.push(playO);
-              }
-              console.log(this.playMaterialVideo);
-            }
+            // if (this.mealForm.playMaterialUrls) {
+            //   for (let i = 0; i < this.mealForm.playMaterialUrls.length; i++) {
+            //     let playO = this.mealForm.playMaterialUrls[i].url;
+            //     if(playO) {
+            //       let playType = playO.substring(playO.lastIndexOf(".") + 1);
+            //       if (
+            //         playType.toLocaleLowerCase() == "jpg" ||
+            //         playType.toLocaleLowerCase() == "png"
+            //       ) {
+            //         this.playMaterialImg.push(playO);
+            //       } else
+            //       this.playMaterialVideo.push(playO);
+            //     }
+            //   }
+            //   //console.log(this.playMaterialVideo);
+            // }
           }
           this.listLoading = false;
         })
@@ -706,12 +768,18 @@ export default {
     },
     handleDelete(index) {
       this.mealForm.details2.splice(index, 1);
-      console.log(this.mealForm.details2);
+      //console.log(this.mealForm.details2);
     },
     delCake(imgUrl) {
       let index = this.mealForm.cake.indexOf(imgUrl);
       if (index != -1) {
         this.mealForm.cake.splice(index, 1);
+      }
+    },
+    delToy(imgUrl) {
+      let index = this.mealForm.toy.indexOf(imgUrl);
+      if (index != -1) {
+        this.mealForm.toy.splice(index, 1);
       }
     },
     // delPayMaterialImg(imgUrl) {
@@ -734,12 +802,6 @@ export default {
         this.mealForm.playMaterialUrls.splice(index, 1);
       }
     },
-    delToy(imgUrl) {
-      let index = this.mealForm.toy.indexOf(imgUrl);
-      if (index != -1) {
-        this.mealForm.toy.splice(index, 1);
-      }
-    },
     afterChange() {},
     dingzhiChange(val) {
       this.mealForm.exemples = val;
@@ -747,36 +809,42 @@ export default {
     allowPageChange(val) {
       this.allow_List = this.allow_mapData.slice((val - 1) * 20, val * 20);
     },
-    allow_setImg(data) {
-      let imgs = this.mealForm.cake.filter((m) => typeof m == "string");
-      this.mealForm.cake = imgs.concat(data);
-      // this.cakeImgs = data;
+    allow_setImg(data) {    //蛋糕
+      //let imgs = this.mealForm.cake.filter((m) => typeof m == "object");
+      var temp = {
+        url: data.url,
+        dis: ''
+      }
+      this.mealForm.cake.push(temp)  // = this.mealForm.cake.concat(data)  // = imgs.push(data)
+      //this.cakeImgs = data;
     },
-    allow_setPlayMaterial(data) {
-      let imgs = this.mealForm.playMaterialUrls.filter(
-        (m) => m.url.indexOf("https://") != -1
-      );
-      this.mealForm.playMaterialUrls = imgs.concat(data);
-      // this.cakeImgs = data;
+    // allow_setPlayMaterial(data) {
+    //   let imgs = this.mealForm.playMaterialUrls.filter(
+    //     (m) => true
+    //   );
+    //   //this.mealForm.playMaterialUrls = imgs.concat(data);
+    //   this.cakeImgs = data;
+    // },
+    allow_setplayMaterialImg(data) {    //轮播
+      //console.log(data)
+      // var temp = {
+      //   url: data.url
+      // }
+      this.mealForm.playMaterialUrls.push(data)
     },
-    allow_setplayMaterialImg(data) {
-      let imgs = this.mealForm.playMaterialUrls.filter(
-        (m) =>
-          (m.url && m.url.indexOf("https://") != -1) ||
-          typeof m.file != "string"
-      );
-      this.mealForm.playMaterialUrls = imgs.concat(data);
-      //this.playMaterialImg = data;
+    allow_setplayMaterialVideo(data) {    //视频
+      //console.log(data)
+      // var temp = {
+      //   url: data.url
+      // }
+      this.mealForm.playMaterialUrls.push(data)
     },
-    allow_setplayMaterialVideo(data) {
-      let imgs = this.mealForm.playMaterialUrls.filter((m) => m.url);
-      this.mealForm.playMaterialUrls = imgs.concat(data);
-      // this.playMaterialVideo = data;
-    },
-    allow_resaveImg(data) {
-      let imgs = this.mealForm.toy.filter((m) => typeof m == "string");
-      this.mealForm.toy = imgs.concat(data);
-      // this.toyImgs = data;
+    allow_resaveImg(data) {     //玩偶
+      var temp = {
+        url: data.url,
+        dis: ''
+      }
+      this.mealForm.toy.push(temp)
     },
     delVideo(data) {
       this.mealForm.materiaUrl = "";
@@ -822,6 +890,7 @@ export default {
         this.$message("请上传轮播素材");
         return false;
       }
+      // orders为定制套餐
       if (self.mealForm.style == "orders") {
         if (self.cakeImgs.length <= 0 && self.mealForm.cake.length <= 0) {
           this.$message("请上传蛋糕样式");
@@ -870,6 +939,33 @@ export default {
       return true;
     },
     save() {
+      var hit =false
+      console.log(this.mealForm)
+      if(this.mealForm.cake.length>0) {
+        this.mealForm.cake.map(m=>{
+          if(m.dis.length == 0) {
+            hit = true
+          }
+        })
+      }
+      if(hit) {
+        this.$message("蛋糕样式标题字段不能为空");
+        return
+      }
+
+      if( this.mealForm.toy.length>0) {
+        this.mealForm.toy.map(m=>{
+          if(m.dis.length == 0) {
+            hit = true
+          }
+        })
+      }
+
+      if(hit) {
+        this.$message("玩偶样式标题字段不能为空");
+        return
+      }
+
       var loading = this.$loading({
         lock: true,
         text: "拼命保存中...",
@@ -922,20 +1018,35 @@ export default {
       // self.isShowDrawer = false;
       //self.mealForm.playMaterialUrls = [];
 
+      self.destTempAry = []
       if (self.mealForm.playMaterialUrls.length > 0) {
-        let len = self.mealForm.playMaterialUrls.length;
         let delCount = 0;
-        for (let index = 0; index < len; index++) {
-          let setimg_ = self.mealForm.playMaterialUrls[index - delCount];
-          if (setimg_.url && setimg_.url.indexOf("https://") == -1) {
-            files_.push(self.upload64(setimg_.url, "playMaterialUrls", index));
-            self.mealForm.playMaterialUrls.splice(index - delCount, 1);
-            delCount++;
-          } else if (setimg_.file) {
-            files_.push(self.uploadFiles(setimg_, "playMaterialUrls1", index));
-            self.mealForm.playMaterialUrls.splice(index - delCount, 1);
-            delCount++;
+        for (let index = 0; index < self.mealForm.playMaterialUrls.length; index++) {
+          let setimg_ = self.mealForm.playMaterialUrls[index];
+          //console.log(typeof(setimg_))
+          //console.log('aa', setimg_)
+          if (setimg_.url && setimg_.url.indexOf("https://") > -1) {
+            self.destTempAry.push(setimg_)
+            //self.mealForm.playMaterialUrls.splice(index - delCount, 1);
+            //delCount++;
+          } else {
+            //console.log(typeof(setimg_))
+            if (setimg_.length && setimg_.length > 0 ) {
+              for(var k = 0; k < setimg_.length; k++) {
+                if(setimg_[k].url && setimg_[k].url.indexOf("https://") > -1) {
+                  self.destTempAry.push(setimg_[k])
+                } else {
+                  files_.push(self.uploadFiles(setimg_[k], "playMaterialUrls1", index+k));
+                }
+              //console.log(j, setimg_[j])
+              }
+              //self.mealForm.playMaterialUrls.splice(index - delCount, 1);
+              //delCount++;
+            } else {
+              files_.push(self.upload64(setimg_, "playMaterialUrls", index, loading));
+            }
           }
+
           // else if (setimg_.url && setimg_.url.indexOf("https://") == -1) {
           //   files_.push(self.upload64(setimg_.url, "playMaterialUrls", index));
           //   self.mealForm.playMaterialUrls.splice(index - delCount, 1);
@@ -963,7 +1074,9 @@ export default {
           for (let index = 0; index < len; index++) {
             let setimg_ = self.mealForm.cake[index - delCount];
             if (setimg_.url) {
-              files_.push(self.upload64(setimg_.url, "cake", index));
+              //var gucyResult = self.upload64(setimg_.url, "cake", index)
+              //console.log(setimg_)
+              files_.push(self.upload64(setimg_, "cake", index, loading))
               self.mealForm.cake.splice(index - delCount, 1);
               delCount++;
             }
@@ -982,7 +1095,9 @@ export default {
           for (let index = 0; index < len; index++) {
             let setimg_ = self.mealForm.toy[index - delCount];
             if (setimg_.url) {
-              files_.push(self.upload64(setimg_.url, "toy", index));
+              //var gucyResult=upload64(setimg_.url, "toy", index)
+              //console.log(setimg_)
+              files_.push(self.upload64(setimg_, "toy", index, loading));
               self.mealForm.toy.splice(index - delCount, 1);
               delCount++;
             }
@@ -1007,7 +1122,7 @@ export default {
 
       Promise.all(files_all)
         .then((get_) => {
-          console.log(get_);
+          //console.log(get_);
           get_.forEach((gets) => {
             var getdata = gets.data.data;
             // if (getdata.type === "materiaUrl") {
@@ -1016,21 +1131,31 @@ export default {
 
             //   console.log(self.mealForm);
             // } else {
-            if (getdata.type === "playMaterialUrls1")
-              self.mealForm.playMaterialUrls.push({
+            //console.log(getdata)
+            if (getdata.type === "playMaterialUrls1") {   //视频
+              //console.log('123', getdata)
+              // self.mealForm.playMaterialUrls.push({
+              //   url: getdata.urls.url,
+              //   imageUrl: getdata.urls.imageUrl,
+              // });
+              self.destTempAry.push({
                 url: getdata.urls.url,
                 imageUrl: getdata.urls.imageUrl,
               });
+              //console.log(self.mealForm.playMaterialUrls)
+              //console.log(234)
+            }
             else if (getdata.type === "playMaterialUrls")
-              self.mealForm.playMaterialUrls.push({
+              self.destTempAry.push({
                 url: getdata.url,
                 imageUrl: "",
               });
-            else self.mealForm[getdata.type].push(getdata.url);
-            self.mealForm.material.push(getdata.materialId);
+            else self.mealForm[getdata.type].push(getdata);
+            //self.mealForm.material.push(getdata.materialId);
             // }
           });
           var toKeep = this.mealForm.id > 0 ? "changeMeals" : "keepMeals"; // changeMeals
+          self.mealForm.playMaterialUrls = self.destTempAry
           weapp[toKeep](self.mealForm).then((res) => {
             if (res.data.status) {
               loading.close();
@@ -1056,7 +1181,8 @@ export default {
           console.log(err);
         });
     },
-    upload64(filr, type, index) {
+    upload64(filr, type, index, loading) {
+      //console.log(filr)
       return new Promise(function (resolve, reject) {
         // var resaveFlie = new FormData();
         // resaveFlie.append("name", type  );
@@ -1064,16 +1190,16 @@ export default {
         // resaveFlie.append("file",filr);
         // console.log(filr.file);
         // console.log( typeOf( filr));
-
         var resaveFlie = {};
-        resaveFlie.name = type;
+        //resaveFlie.name = type;
         resaveFlie.type = type;
-        resaveFlie.file = filr;
+        resaveFlie.file = filr.url;
+        resaveFlie.dis = filr.dis
 
         weapp
           .upload64(resaveFlie)
           .then((res) => {
-            // console.log(res);
+            console.log(res);
             if (res.data.status) {
               resolve(res);
             } else {
@@ -1083,7 +1209,7 @@ export default {
           })
           .catch((err) => {
             loading.close();
-            console.log(err);
+            //console.log(err);
             reject();
           });
       });
@@ -1117,9 +1243,78 @@ export default {
       // this.$store.dispatch("weapp-private-traffic-detail", this.$route);
       this.$router.go(-1);
     },
+    checkFile(file) {
+      console.log(file)
+      const reader = new FileReader();
+      var that_ = this;
+      reader.onload = (e) => {
+        const isLt5M = file.size < 1024 * 1024 * 5;
+        const isAllrowType = /video\/mp4|jpeg|png|jpg/i.test(file.type);
+        if (!isAllrowType) {
+          that_.$baseMessage(
+            "请上传正确的文件类型（视频传MP4格式，图片传jpg/jpeg/png格式）",
+            "error"
+          );
+          return false;
+        }
+
+        if (!isLt5M) {
+          that_.$baseMessage("请上传5M以下的文件", "error");
+          return false;
+        } else {
+          const img = new Image();
+          img.src = e.target.result;
+          img.onload = function () {
+            //var inSize1 = img.width === 1024 && img.height === 600;
+            var inSize2 = img.width === 1280 && img.height === 800;
+            if(!inSize2) {
+              that_.$baseMessage(
+                "请上传正确的文件尺寸:1280*800",
+                "info"
+              );
+            }
+          };
+          if (/video/i.test(file.type)) {
+            this.getType = /video/;
+            var video = document.createElement("video");
+            video.preload = "metadata";
+            video.src = URL.createObjectURL(file);
+            video.onloadedmetadata = () => {
+              window.URL.revokeObjectURL(video.src);
+              var inSize4 = video.videoWidth === 1280 && video.videoHeight === 800;
+              if (
+                !(
+                  Math.round(parseFloat(video.duration)) == 15 ||
+                  Math.round(parseFloat(video.duration)) == 5
+                )
+              ) {
+                var showmassage = `这个视频是${
+                  Math.round(video.duration * 100) / 100
+                }秒..请上传15秒或5秒的视频`;
+                that_.$baseMessage(showmassage, "warning");
+                return false;
+              }
+
+              if (video.duration > 15) {
+                that_.$baseMessage("请上传时长小于15秒的视频", "error");
+              }
+            };
+          } else {
+            this.getType = /jpeg|png|jpg/;
+          }
+        }
+      };
+      reader.readAsDataURL(file);
+    }
   },
 };
 </script>
+<style scoped>
+.bonus {
+  color: grey;
+  font-size: 12px;
+}
+</style>
 <style lang="scss" scoped>
 .avatar-uploader {
   text-align: center;
@@ -1221,5 +1416,9 @@ export default {
   top: -10px;
   border: 0px solid;
   background-color: transparent;
+}
+.imgItem {
+  margin: 5px;
+  display: block;
 }
 </style>

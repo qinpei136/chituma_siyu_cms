@@ -3,14 +3,21 @@
     <byui-query-form>
       <byui-query-form-left-panel>
         <el-form ref="form" :inline="true" @submit.native.prevent>
-          <!--   <el-form-item label="联系人电话">
+          <el-form-item label="套餐名称">
             <el-input
-              v-model="ordersNameValue"
-              placeholder="联系人电话"
+              v-model="toSend.meal"
+              placeholder="单行输入"
               clearable
             ></el-input>
-          </el-form-item>-->
-          <el-form-item label="状态">
+          </el-form-item>
+          <el-form-item label="价格">
+            <el-input
+              v-model="toSend.payPrice"
+              placeholder="单行输入"
+              clearable
+            ></el-input>
+          </el-form-item>
+          <el-form-item label="订单状态">
             <el-select
               v-model="ordersNameSelect"
               placeholder="请选择"
@@ -24,6 +31,22 @@
               >
               </el-option>
             </el-select>
+          </el-form-item>
+          <el-form-item label="下单时间">
+            <el-input
+              suffix-icon="el-icon-date"
+              v-model="toSend.orderTime"
+              placeholder="单行输入"
+              clearable
+            ></el-input>
+          </el-form-item>
+          <el-form-item label="投放时间">
+            <el-input
+              suffix-icon="el-icon-date"
+              v-model="toSend.adStart"
+              placeholder="单行输入"
+              clearable
+            ></el-input>
           </el-form-item>
         </el-form>
         <div style="width: 500px; height: 3px;"></div>
@@ -62,7 +85,7 @@
         </el-form>
       </byui-query-form-right-panel>
     </byui-query-form>
-
+    <!-- ==============私域流量cpt表格区域========================= -->
     <el-table
       ref="tableSort"
       v-loading="listLoading"
@@ -70,12 +93,20 @@
       style="min-height: 50vh;"
       :element-loading-text="elementLoadingText"
     >
+      <el-table-column
+        label="序号"
+        type="index"
+        width="50"
+        :index="indexMethod"
+      ></el-table-column>
       <el-table-column prop="account" label="客户微信昵称"></el-table-column>
-      <el-table-column prop="mobile" label="手机号" width="160px">
+      <el-table-column prop="mobile" label="微信授权号码" width="160px">
       </el-table-column>
       <el-table-column prop="meal" label="套餐名称"></el-table-column>
 
       <el-table-column prop="payPrice" label="价格"></el-table-column>
+      <el-table-column prop="bonusRatio" label="物业分红比例"></el-table-column>
+      <el-table-column prop="bonusVal" label="物业分红金额"></el-table-column>
       <el-table-column
         prop="orderTime"
         width="160px"
@@ -83,7 +114,7 @@
       ></el-table-column>
       <el-table-column prop="adStart" label="投屏时间"></el-table-column>
       <!-- <el-table-column prop="account" label="创建人"> </el-table-column> -->
-      <el-table-column prop="orderStat" label="状态">
+      <el-table-column prop="orderStat" label="订单状态">
         <template slot-scope="scope">
           <el-tooltip
             :content="scope.row.remark ? scope.row.remark : ''"
@@ -241,7 +272,7 @@
         </el-row>
       </div>
     </el-drawer>
-
+    <!-- 分页功能 -->
     <el-pagination
       :background="background"
       :current-page="queryForm.pageNo"
@@ -265,6 +296,7 @@ export default {
 
   data() {
     return {
+      toSend: { orderTime: "", meal: "", payPrice: "", adStart: "" }, // input绑定的值
       allow_InitData: [],
       allow_mapData: [],
       allow_List: [],
@@ -381,6 +413,9 @@ export default {
     this.queryForm = getCpt ? getCpt.queryForm : this.queryForm;
   },
   methods: {
+    indexMethod(index) {
+      return (this.queryForm.pageNo - 1) * this.queryForm.pageSize + index + 1;
+    },
     checkPermission,
     getMaterilsData() {
       weapp
@@ -388,6 +423,7 @@ export default {
           orderStat: -1,
         })
         .then((res) => {
+          //console.log(res);
           if (res.data.status) {
             this.allow_InitData = res.data.data;
 
@@ -445,7 +481,7 @@ export default {
       this.mealForm.cake = [];
       this.mealForm.toy = [];
     },
-
+    //查看方法
     allow_toLimits(row, postIsVerify) {
       // console.log(row, postIsVerify);
       sessionStorage.setItem("fromUrl", "/weapp/private-traffic-cpt");
@@ -455,11 +491,12 @@ export default {
         params: {
           orderId: row.orderId,
           status: row.orderStat,
+          parentRow: row
         },
       });
     },
     allow_tosee(row, postIsVerify) {
-      console.log(row, postIsVerify);
+      //console.log(row, postIsVerify);
       var self = this;
       weapp.delPay(row).then((res) => {
         setTimeout(() => {
@@ -724,9 +761,15 @@ export default {
         // console.log(this.allow_InitData);
       }
     },
+    // =============清空按钮===========
     clearCenterList() {
       this.ordersNameValue = "";
       this.ordersNameSelect = "";
+      this.toSend.orderTime = "";
+      this.toSend.meal = "";
+      this.toSend.payPrice = "";
+      this.toSend.adStart = "";
+
       this.allow_mapData = [...this.allow_InitData];
       this.allowTotal = this.allow_mapData.length;
       this.allowPageChange(1);

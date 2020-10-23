@@ -64,7 +64,7 @@
               icon="el-icon-refresh"
               type="primary"
               @click="createdCenterList"
-              >新建套餐
+              >新建优惠劵
             </el-button>
           </el-form-item>
         </el-form>
@@ -97,7 +97,7 @@
           <span
             v-text="
               scope.row.days
-                ? `领取后${scope.row.days}天有效`
+                ? `领取后${scope.row.days}天内有效`
                 : scope.row.startDate && scope.row.endDate
                 ? `${reTimes(scope.row.startDate)}
                 ~${reTimes(scope.row.endDate)}`
@@ -249,7 +249,7 @@
                 class="CouponsInputLimit"
               >
               </el-input>
-              <span> 天有效</span>
+              <span> 天内有效</span>
             </el-radio>
             <el-radio
               v-model="CouponsForm.validityType"
@@ -271,8 +271,6 @@
           <el-form-item label="每人限领">
             <el-input-number
               v-model="CouponsForm.receiveCount"
-              :min="1"
-              :max="1"
             ></el-input-number
             >张
           </el-form-item>

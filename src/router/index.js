@@ -106,6 +106,24 @@ const weappp_private_house = (resolve) =>
   require(["@/views/content/wxapp/privateHouse.vue"], resolve);
 const weappp_user_coupons = (resolve) =>
   require(["@/views/content/wxapp/userCoupons.vue"], resolve);
+// 物业管理
+const weappp_property_management = (resolve) =>
+  require(["@/views/content/wxapp/property_management.vue"], resolve);
+// 物业管理新增物业页面
+const weappp_property_add = (resolve) =>
+  require(["@/views/content/wxapp/property_add.vue"], resolve);
+// 物业管理修改页面property_update
+const property_update = (resolve) =>
+  require(["@/views/content/wxapp/property_update.vue"], resolve);
+// 物业管理查看页面
+const property_view = (resolve) =>
+  require(["@/views/content/wxapp/property_view.vue"], resolve);
+// 物业管理提现property_drawbouns
+const property_drawbouns = (resolve) =>
+  require(["@/views/content/wxapp/property_drawbouns.vue"], resolve);
+// 物业管理物业名称订单页面Property_orders
+const Property_orders = (resolve) =>
+  require(["@/views/content/wxapp/Property_orders.vue"], resolve);
 
 // -------------------小程序 ---------小程序 ----------------小程序 ----------------小程序 -----------------------
 
@@ -517,6 +535,77 @@ export const asyncRoutes = [
         component: weappp_user_coupons,
         meta: {
           title: "用户领取记录",
+          keepAlive: true,
+          permissions: controlRole.inside(),
+        },
+      },
+      // 物业管理页面
+      {
+        path: "propertyManagement",
+        name: "weappp_property_management",
+        component: weappp_property_management,
+        meta: {
+          title: "物业管理",
+          keepAlive: true,
+          permissions: controlRole.inside(),
+        },
+      },
+      // 物业管理页面(新增物业页面)
+      {
+        path: "propertyAdd",
+        name: "weappp_property_add",
+        component: weappp_property_add,
+        hidden: true,
+        meta: {
+          title: "物业管理",
+          keepAlive: true,
+          permissions: controlRole.inside(),
+        },
+      },
+      // 物业管理页面(修改页面)property_update
+      {
+        path: "property_update",
+        name: "property_update",
+        component: property_update,
+        hidden: true,
+        meta: {
+          title: "物业管理",
+          keepAlive: true,
+          permissions: controlRole.inside(),
+        },
+      },
+      // 物业管理页面(查看页面)property_view
+      {
+        path: "property_view",
+        name: "property_view",
+        component: property_view,
+        hidden: true,
+        meta: {
+          title: "物业管理",
+          keepAlive: true,
+          permissions: controlRole.inside(),
+        },
+      },
+      // //  物业管理页面(物业名称页面)
+      // {
+      //   path: "property_drawbouns",
+      //   name: "property_drawbouns",
+      //   component: property_drawbouns,
+      //   hidden: true,
+      //   meta: {
+      //     title: "物业提现",
+      //     keepAlive: true,
+      //     permissions: controlRole.inside(),
+      //   },
+      // },
+      // 物业管理物业名称订单页面Property_orders
+      {
+        path: "Property_orders",
+        name: "Property_orders",
+        component: Property_orders,
+        hidden: true,
+        meta: {
+          title: "物业管理",
           keepAlive: true,
           permissions: controlRole.inside(),
         },

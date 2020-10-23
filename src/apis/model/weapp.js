@@ -133,3 +133,92 @@ export async function getMealDetail(data) {
     data,
   });
 }
+// 获取物业管理列表
+export async function getProperties(data) {
+  return await servicer({
+    url: "/sy/getProperties",
+    method: "post",
+    data,
+  });
+}
+// 新增物业接口
+export async function addProperty(data) {
+  return await servicer({
+    url: "/sy/addProperty",
+    method: "post",
+    data,
+  });
+}
+// 查看物业接口
+export async function getProperty(data) {
+  return await servicer({
+    url: "/sy/getProperty",
+    method: "post",
+    data,
+  });
+}
+// 更新物业接口
+export async function updateProperty(data) {
+  return await servicer({
+    url: "/sy/updProperty",
+    method: "post",
+    data,
+  });
+}
+// 获取物业分红详情
+export async function getPropertyBounsDetail(data) {
+  return await servicer({
+    url: "/sy/getBonusDetailMana",
+    method: "post",
+    data,
+  });
+}
+//提现
+export async function drawBouns(data) {
+  return await servicer({
+    url: "/sy/drawBonus",
+    method: "post",
+    data,
+  });
+}
+//停用物业
+export async function stopProperty(data) {
+  return await servicer({
+    url: "/sy/stopProperty",
+    method: "post",
+    data,
+  });
+}
+//启用物业
+export async function startProperty(data) {
+  return await servicer({
+    url: "/sy/startProperty",
+    method: "post",
+    data,
+  });
+}
+//删除物业
+export async function remProperty(data) {
+  return await servicer({
+    url: "/sy/remProperty",
+    method: "post",
+    data,
+  });
+}
+//查看小区订单列表
+export async function getCoDetailMana(data) {
+  return await servicer({
+    url: "/sy/getCoDetailMana",
+    method: "post",
+    data,
+  });
+}
+//11查看分红订单
+export async function getBonusOrder(data) {
+  return await servicer({
+    url: "/sy/getBonusOrder",
+    method: "post",
+    data,
+  });
+}
+

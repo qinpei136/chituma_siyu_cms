@@ -36,12 +36,19 @@
                   }}
                 </el-col>
               </el-row>
+
+              <el-row>
+                <el-col :span="6">物业分红比例：{{ parentRow.bonusRatio}} </el-col>
+                <el-col :span="6">
+                  物业分红金额：{{ parentRow.bonusVal}}
+                </el-col>
+              </el-row>
               <el-row v-show="orderForm.style == 'orders'" class="orderFormSty">
                 <el-col :span="12">
-                  蛋糕样式：<img :src="orderForm.cake" alt="" class="cakeSty" />
+                  蛋糕样式：<img :src="orderForm.cake.url" alt="" class="cakeSty" />
                 </el-col>
                 <el-col :span="12" te>
-                  玩偶样式：<img :src="orderForm.toy" alt="" class="cakeSty" />
+                  玩偶样式：<img :src="orderForm.toy.url" alt="" class="cakeSty" />
                 </el-col>
               </el-row>
               <el-row v-show="orderForm.style == 'orders'" class="orderFormSty">
@@ -60,6 +67,7 @@
           </el-card>
         </el-col>
       </el-row>
+
       <el-row>
         <el-col :span="24">
           <el-card class="box-card" style="margin: 0 40px;">
@@ -551,16 +559,20 @@ export default {
       fodder_ImgList: [],
       fodder_ImgIndex: null,
       fodder_ImgdialogVisible: false,
+      parentRow: {bonusRatio: 0, bonusVal: 0}
     };
   },
   computed: {},
 
   created() {
+    //console.log("params", this.$route.params)
+    this.parentRow = this.$route.params.parentRow
+    //console.log("parentRow", this.parentRow)
     this.fetchData();
     if (this.$route.params.status == 0 || this.$route.params.status == 10) {
       this.isShowStatus = true;
     }
-    console.log(this.isShowStatus);
+    //console.log(this.isShowStatus);
   },
   mounted() {},
   methods: {
@@ -573,7 +585,9 @@ export default {
         .then((res) => {
           if (res.data.status) {
             this.orderForm = res.data.data;
-
+            this.orderForm.cake = this.orderForm.cake || []
+            this.orderForm.toy = this.orderForm.toy || []
+            //console.log(res.data.data)
             let stateInfo = this.statusList.filter((item) => {
               return item.value == this.orderForm.orderStat;
             });
@@ -590,13 +604,12 @@ export default {
                 ? "mp4"
                 : "img";
             }
-
             if (this.orderForm.orderStat == 10) {
               this.isShowAllow = true;
             } else {
               this.isShowAllow = false;
             }
-            console.log(this.orderForm);
+            //console.log(this.orderForm);
           }
         })
         .catch((err) => {
@@ -639,7 +652,6 @@ export default {
       this.orderForm.cake = [];
       this.orderForm.toy = [];
     },
-
     order_toLimits(row, postIsVerify) {
       console.log(row, postIsVerify);
       this.orderForm = row;
@@ -651,7 +663,7 @@ export default {
       });
     },
     order_tosee(row, postIsVerify) {
-      console.log(row, postIsVerify);
+      //console.log(row, postIsVerify);
       this.isShowDrawer = true;
       this.orderForm = row;
     },
@@ -664,7 +676,6 @@ export default {
         weapp.closeMeals(row).then((res) => {
           if (res.data.status) {
             self.getMaterilsData();
-
             self.$message({
               type: "success",
               message: "已经启用",
